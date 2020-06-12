@@ -23,6 +23,6 @@
  (Cnst (TFun (TVar 2) (TVar 4)) (TFun (TNum) (TVar 5)))
  (Cnst (TFun (TVar 1) (TVar 5)) (TFun (TNum) (TVar 6)))))
 
-(test/exn (typeof (id 'x) (mtTEnv)) "free identifier x")
+(test/exn (typeof (id 'x) (mtTEnv)) "identificador libre!! x")
 (reset)
 
