@@ -116,42 +116,20 @@
          Type
          (lookupT-env x restoTEnv))]))
 
-(define (obtenerTipo expr Tenv)
+(define (typeof expr env)
+  (reset)
   (match expr
-    [(num n) (list (TNum) Tenv)]
-    [(add izquierda derecha) (list (TNum) Tenv)]
-    [(sub izquierda derecha) (list (TNum) Tenv)]
-    [(id identificador) (list (lookupT-env identificador Tenv) Tenv)]
-  )
-)
-
-(define (obtenerConstrains expr Tenv)
-  (match expr
-    [(num n) '()]
-    [(id identificador) '()]
-    [(add izquierda derecha)
+    [(num n) (list (TNum) env)
+             (append empty)]
+    [(add l r)
+      (list (TNum))
+      (let (l-type) (typeof l env))
+      (let (r-type) (typeof r env))
       (append
-        (obtenerConstrains izquierda Tenv)
-        (obtenerConstrains derecha Tenv)
-        (list (Cnst (car (obtenerTipo izquierda Tenv)) (TNum))
-              (Cnst (car (obtenerTipo derecha Tenv)) (TNum))
-        )
-      )
-    ]
-    [(sub izquierda derecha)
-      (append
-        (obtenerConstrains izquierda Tenv)
-        (obtenerConstrains derecha Tenv)
-        (list (Cnst (car (obtenerTipo izquierda Tenv)) (TNum))
-              (Cnst (car (obtenerTipo derecha Tenv)) (TNum))
-        )
-      )
+        (list (Cnst l-type (TNum)))
+        (list (Cnst r-type (TNum))))
     ]
   )
-)
-
-(define (typeof expr Tenv)
-  (append (list (car (obtenerTipo expr Tenv))) (obtenerConstrains expr Tenv))
 )
 
 (define (substitute tvar type list)
