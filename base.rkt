@@ -122,7 +122,13 @@
     [(add izquierda derecha) (list (TNum) Tenv)]
     [(sub izquierda derecha) (list (TNum) Tenv)]
     [(id identificador) (list (lookupT-env identificador Tenv) Tenv)]
-    [(if0 e tb fb) (list (car (obtenerTipo tb Tenv)) Tenv)]
+    [(if0 condicion trueTense falseTense) (list (car (obtenerTipo trueTense Tenv)) Tenv)]
+    [(fun argumento cuerpoFuncion) 
+      (def variableScope (TVar (get-id)))
+      (list (TFun variableScope (car (obtenerTipo cuerpoFuncion (anTEnv argumento variableScope Tenv))))
+            (anTEnv argumento variableScope Tenv)
+      )
+    ]
   )
 )
 
@@ -158,6 +164,7 @@
         )
       )
     ]
+    [(fun argumento cuerpoFuncion) (obtenerConstrains cuerpoFuncion Tenv)]
   )
 )
 
