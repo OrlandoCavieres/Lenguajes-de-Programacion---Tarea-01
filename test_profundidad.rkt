@@ -8,6 +8,7 @@
 (test (typeof (parse 'x)(anTEnv 'x (TNum) (mtTEnv)))(list (TNum)))
 (test (typeof (parse '{- 10 x})(anTEnv 'x (TVar 1)  (mtTEnv)))(list (TNum) (Cnst (TNum) (TNum)) (Cnst (TVar 1) (TNum))))
 (test/exn (typeof (fun 'x (id 'y))(mtTEnv)) "identificador libre!! y")
+(test (typeof (fun 'x (add (id 'x) (num 1))) (mtTEnv))(list (TFun (TVar 1) (TNum)) (Cnst (TVar 1) (TNum)) (Cnst (TNum) (TNum))))
 (reset)
 ; '{+ 4 {with {x 10} {+ x 5}}}
 (test (typeof (add (num 4) (app (fun 'x (add (id 'x) (num 5))) (num 10))) (mtTEnv)) (list (TNum) (Cnst (TVar 1) (TNum))(Cnst (TNum) (TNum))(Cnst (TFun (TVar 1) (TNum)) (TFun (TNum) (TVar 2)))(Cnst (TNum) (TNum)) (Cnst (TVar 2) (TNum))))
