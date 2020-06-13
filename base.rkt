@@ -108,6 +108,10 @@
 
 ;################################ Su código va aquí ###########################
 
+(define envVacio mtTEnv)
+
+(define extenderEnv anTEnv)
+
 (define (lookupT-env x Tenv)
   (match Tenv
     [(mtTEnv) (error "identificador libre!!" x)]
@@ -125,9 +129,9 @@
     [(if0 condicion trueTense falseTense) (list (car (obtenerTipo trueTense Tenv)) Tenv)]
     [(fun argumento cuerpoFuncion) 
       (def variableScope (TVar (get-id)))
-      (list (TFun variableScope (car (obtenerTipo cuerpoFuncion (anTEnv argumento variableScope Tenv))))
-            (anTEnv argumento variableScope Tenv)
-      )
+      (def new-env (extenderEnv argumento variableScope Tenv))
+      (def (list tipoCuerpoFuncion actualEnv) (obtenerTipo cuerpoFuncion new-env))
+      (list (TFun variableScope tipoCuerpoFuncion) actualEnv)
     ]
   )
 )
@@ -169,6 +173,7 @@
 )
 
 (define (typeof expr Tenv)
+  (reset)
   (append (list (car (obtenerTipo expr Tenv))) (obtenerConstrains expr Tenv))
 )
 
