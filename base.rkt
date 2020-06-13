@@ -102,7 +102,7 @@
 (define (prettyfy T)
   (match T
     [(TNum) "num"]
-    [(TVar x) (string-append "(TVar " x ")")]
+    [(TVar x) (string-append "(TVar " (number->string x) ")")]
     [(TFun T1 T2) (string-append "(TFun " (prettyfy T1) " " (prettyfy T2) ")")]))
 
 
