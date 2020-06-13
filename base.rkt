@@ -122,6 +122,7 @@
     [(add izquierda derecha) (list (TNum) Tenv)]
     [(sub izquierda derecha) (list (TNum) Tenv)]
     [(id identificador) (list (lookupT-env identificador Tenv) Tenv)]
+    [(if0 e tb fb) (list (car (obtenerTipo tb Tenv)) Tenv)]
   )
 )
 
@@ -144,6 +145,16 @@
         (obtenerConstrains derecha Tenv)
         (list (Cnst (car (obtenerTipo izquierda Tenv)) (TNum))
               (Cnst (car (obtenerTipo derecha Tenv)) (TNum))
+        )
+      )
+    ]
+    [(if0 condicion trueTense falseTense)
+      (append
+        (obtenerConstrains condicion Tenv)
+        (obtenerConstrains trueTense Tenv)
+        (obtenerConstrains falseTense Tenv)
+        (list (Cnst (car (obtenerTipo condicion Tenv)) (TNum))
+              (Cnst (car (obtenerTipo trueTense Tenv)) (car (obtenerTipo falseTense Tenv)))
         )
       )
     ]
