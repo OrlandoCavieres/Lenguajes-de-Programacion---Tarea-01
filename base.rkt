@@ -120,21 +120,6 @@
          Type
          (lookupT-env x restoTEnv))]))
 
-(define (obtenerTipoOperacion expr Tenv)
-  (match expr
-    [(num n) (list (TNum))]
-    [(id identificador) (lookupT-env identificador Tenv)]
-    [(add izquierda derecha) (list (TNum))]
-    [(sub izquierda derecha) (list (TNum))]
-    [(if0 condicion trueTense falseTense) (list (car (typeof trueTense Tenv)))]
-    [(app fun parametro)
-      (define tipoApp (TVar (get-id)))
-      (define nuevoAppEnv (extenderEnv (app fun parametro) tipoApp Tenv))
-      (list tipoApp nuevoAppEnv)
-    ]
-  )
-)
-
 (define (typeof expr Tenv)
   (match expr
     [(num n) (list (TNum))]
