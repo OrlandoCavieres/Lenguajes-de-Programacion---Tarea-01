@@ -112,69 +112,84 @@
 
 (define extenderEnv anTEnv)
 
-(define (lookupT-env x Tenv)
-  (match Tenv
+(define (lookupT-env x env)
+  (match env
     [(mtTEnv) (error "identificador libre!!" x)]
     [(anTEnv id Type restoTEnv)
-     (if (symbol=? id x)
+     (if (equal? id x)
          Type
          (lookupT-env x restoTEnv))]))
 
-(define (obtenerTipo expr Tenv)
+(define (obtenerTipoOperacion expr Tenv)
   (match expr
-    [(num n) (list (TNum) Tenv)]
-    [(add izquierda derecha) (list (TNum) Tenv)]
-    [(sub izquierda derecha) (list (TNum) Tenv)]
-    [(id identificador) (list (lookupT-env identificador Tenv) Tenv)]
-    [(if0 condicion trueTense falseTense) (list (car (obtenerTipo trueTense Tenv)) Tenv)]
-    [(fun argumento cuerpoFuncion) 
-      (def variableScope (TVar (get-id)))
-      (def new-env (extenderEnv argumento variableScope Tenv))
-      (def (list tipoCuerpoFuncion actualEnv) (obtenerTipo cuerpoFuncion new-env))
-      (list (TFun variableScope tipoCuerpoFuncion) actualEnv)
+    [(num n) (list (TNum))]
+    [(id identificador) (lookupT-env identificador Tenv)]
+    [(add izquierda derecha) (list (TNum))]
+    [(sub izquierda derecha) (list (TNum))]
+    [(if0 condicion trueTense falseTense) (list (car (typeof trueTense Tenv)))]
+    [(app fun parametro)
+      (define tipoApp (TVar (get-id)))
+      (define nuevoAppEnv (extenderEnv (app fun parametro) tipoApp Tenv))
+      (list tipoApp nuevoAppEnv)
     ]
   )
 )
 
-(define (obtenerConstrains expr Tenv)
+(define (typeof expr Tenv)
   (match expr
-    [(num n) '()]
-    [(id identificador) '()]
+    [(num n) (list (TNum))]
+    [(id identificador) (list (lookupT-env identificador Tenv))]
     [(add izquierda derecha)
       (append
-        (obtenerConstrains izquierda Tenv)
-        (obtenerConstrains derecha Tenv)
-        (list (Cnst (car (obtenerTipo izquierda Tenv)) (TNum))
-              (Cnst (car (obtenerTipo derecha Tenv)) (TNum))
+        (list (TNum))
+        (cdr (typeof izquierda Tenv))
+        (cdr (typeof derecha Tenv))
+        (list (Cnst (car (typeof izquierda Tenv)) (TNum))
+              (Cnst (car (typeof derecha Tenv)) (TNum))
         )
       )
     ]
     [(sub izquierda derecha)
       (append
-        (obtenerConstrains izquierda Tenv)
-        (obtenerConstrains derecha Tenv)
-        (list (Cnst (car (obtenerTipo izquierda Tenv)) (TNum))
-              (Cnst (car (obtenerTipo derecha Tenv)) (TNum))
+        (list (TNum))
+        (cdr (typeof izquierda Tenv))
+        (cdr (typeof derecha Tenv))
+        (list (Cnst (car (typeof izquierda Tenv)) (TNum))
+              (Cnst (car (typeof derecha Tenv)) (TNum))
         )
       )
     ]
     [(if0 condicion trueTense falseTense)
-      (append
-        (obtenerConstrains condicion Tenv)
-        (obtenerConstrains trueTense Tenv)
-        (obtenerConstrains falseTense Tenv)
-        (list (Cnst (car (obtenerTipo condicion Tenv)) (TNum))
-              (Cnst (car (obtenerTipo trueTense Tenv)) (car (obtenerTipo falseTense Tenv)))
+      (append 
+        (list (car (typeof trueTense Tenv)))
+        (cdr (typeof condicion Tenv))
+        (cdr (typeof trueTense Tenv))
+        (cdr (typeof falseTense Tenv))
+        (list (Cnst (car (typeof condicion Tenv)) (TNum))
+              (Cnst (car (typeof trueTense Tenv)) (car (typeof falseTense Tenv)))
         )
       )
     ]
-    [(fun argumento cuerpoFuncion) (obtenerConstrains cuerpoFuncion Tenv)]
+    [(fun argumento cuerpoFuncion)
+      (define tipoVar (TVar (get-id)))
+      (define nuevoEnv (extenderEnv argumento (TVar count) Tenv))
+      (define nuevoCuerpo (typeof cuerpoFuncion nuevoEnv))
+      (append (list (TFun (lookupT-env argumento nuevoEnv) (car nuevoCuerpo))) (cdr nuevoCuerpo))
+    ]
+    [(app fun parametro)
+      (define tipoFuncion (typeof fun Tenv))
+      (define tipoParametro (typeof parametro Tenv))
+      (define tipoVar (TVar (get-id)))
+      (define nuevoAppEnv (extenderEnv (app fun parametro) (TVar count) Tenv))
+      (define tipoApp (lookupT-env (app fun parametro) nuevoAppEnv))
+      (append
+        (list tipoVar)
+        (cdr tipoFuncion)
+        (cdr tipoParametro)
+        (list (Cnst (car tipoFuncion) (TFun (car tipoParametro) tipoApp)))
+      )
+    ]
   )
-)
-
-(define (typeof expr Tenv)
-  (reset)
-  (append (list (car (obtenerTipo expr Tenv))) (obtenerConstrains expr Tenv))
 )
 
 (define (substitute tvar type list)
