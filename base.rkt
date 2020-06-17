@@ -108,6 +108,12 @@
 
 ;################################ Su código va aquí ###########################
 
+; Definiciones obtenidas del libro 
+; "Programming Languages: Application and Interpretation" de Shriram Krishnamurthi
+; Se abstrayeron los algoritmos para formalizar todas las funciones y definiciones solicitadas.
+; Se obtuvo la metodología de comparación, usos de boolenos y funciones de chequeo, y manejos de variables
+; en chequeo e inferencia de invariantes estáticos o tipos y en entornos. (Capitulo 14 - 15)
+
 (define envVacio mtTEnv)
 
 (define extenderEnv anTEnv)
@@ -177,11 +183,110 @@
   )
 )
 
-(define (substitute tvar type list)
-  (void))
+(define (compararTipoConstrain typeVariable tvar type)
+  (match typeVariable
+    [(TNum) (TNum)]
+    [(TVar n) 
+      (if 
+        (match typeVariable
+          [(TVar primerNumero) 
+            (match tvar
+              [(TVar segundoNumero) (equal? primerNumero segundoNumero)] 
+            )
+          ]
+        )
+        type
+        typeVariable
+      )
+    ]
+    [(TFun entrada salida) 
+      (TFun (compararTipoConstrain entrada tvar type) (compararTipoConstrain salida tvar type))
+    ]
+  )
+)
 
-(define (unify _list)
-  (void))
+(define (substitute tvar type listaConstrains)
+  (if (empty? listaConstrains)
+    listaConstrains
+    (append 
+      (list 
+        (match (car listaConstrains)
+          [(Cnst T1 T2) 
+            (Cnst (compararTipoConstrain T1 tvar type) (compararTipoConstrain T1 tvar type))
+          ]
+        )
+      )
+      (substitute tvar type (cdr listaConstrains))
+    )
+  )
+)
+
+(define (esTVar? tipoVariable)
+  (match tipoVariable
+    [(TNum) #f]
+    [(TVar numero) #t]
+    [(TFun entrada salida) #f]
+  )
+)
+
+(define (esSubExpresion? tvar tipo)
+  (match tipo
+    [(TNum) #f]
+    [(TVar n) 
+      (match tvar
+        [(TVar primerNumero) 
+          (match tipo
+            [(TVar segundoNumero) (equal? primerNumero segundoNumero)]
+          )
+        ]
+      )
+    ]
+    [(TFun tipoEntrada tipoSalida)
+      (or (esSubExpresion? tvar tipoEntrada) (esSubExpresion? tvar tipoSalida))
+    ]
+  )
+)
+
+(define (compararTipoEntreDosExpresiones primerTipo segundoTipo)
+  (match primerTipo
+    [(TNum) 
+      (match segundoTipo
+        [(TNum) #t]
+        [(TVar numero) #f]
+        [(TFun entrada salida) #f]
+      )
+    ]
+    [(TVar primerNumero)
+      (match segundoTipo
+        [(TNum) #f]
+        [(TVar segundoNumero) (equal? primerNumero segundoNumero)]
+        [(TFun entrada salida) #f]
+      )
+    ]
+    [(TFun T1entrada T1salida)
+      (match segundoTipo
+        [(TNum) #f]
+        [(TVar numero) #f]
+        [(TFun T2entrada T2salida) 
+          (and (compararTipoEntreDosExpresiones T1entrada T2entrada) (compararTipoEntreDosExpresiones T1salida T2salida))
+        ]
+      )
+    ]
+  )
+)
+
+;(define (unify listaConstrains)
+;  (if (empty? listaConstrains)
+;    empty
+;    (define cabeza (car listaConstrains))
+;    (define cola (cdr listaConstrains))
+;    (match cabeza
+;      [(Cnst termino1 termino2)
+;        
+;      ]
+;    )  
+;  )
+;)
 
 (define (lookup-list _list var)
   (void))
