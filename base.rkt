@@ -186,7 +186,7 @@
 (define (compararTipoConstrain typeVariable tvar type)
   (match typeVariable
     [(TNum) (TNum)]
-    [(TVar n) 
+    [(TVar numero) 
       (if 
         (match typeVariable
           [(TVar primerNumero) 
@@ -212,7 +212,7 @@
       (list 
         (match (car listaConstrains)
           [(Cnst T1 T2) 
-            (Cnst (compararTipoConstrain T1 tvar type) (compararTipoConstrain T1 tvar type))
+            (Cnst (compararTipoConstrain T1 tvar type) (compararTipoConstrain T2 tvar type))
           ]
         )
       )

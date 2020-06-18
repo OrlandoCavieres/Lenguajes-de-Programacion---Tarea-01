@@ -44,5 +44,5 @@
 (test (substitute (TVar 1) (TNum) '()) '())
 (test (substitute (TVar 1) (TNum) (list (Cnst (TNum) (TNum)) (Cnst (TVar 1) (TNum)))) (list (Cnst (TNum) (TNum)) (Cnst (TNum) (TNum))))
 (test (substitute (TVar 5) (TNum) (list (Cnst (TFun (TVar 1) (TFun (TVar 5) (TVar 3))) (TFun (TVar 1) (TNum))))) 
-    (list (Cnst (TFun (TVar 1) (TFun (TNum) (TVar 3))) (TFun (TVar 1) (TFun (TNum) (TVar 3))))))
-(test (substitute (TVar 1) (TNum) (list (Cnst (TFun (TVar 1) (TVar 1)) (TFun (TNum) (TVar 2))))) (list (Cnst (TFun (TNum) (TNum)) (TFun (TNum) (TNum)))))
+    (list (Cnst (TFun (TVar 1) (TFun (TNum) (TVar 3))) (TFun (TVar 1) (TNum)))))
+(test (substitute (TVar 1) (TNum) (list (Cnst (TFun (TVar 1) (TVar 1)) (TFun (TNum) (TVar 2))))) (list (Cnst (TFun (TNum) (TNum)) (TFun (TNum) (TVar 2)))))
