@@ -111,8 +111,12 @@
 ; Definiciones obtenidas del libro 
 ; "Programming Languages: Application and Interpretation" de Shriram Krishnamurthi
 ; Se abstrayeron los algoritmos para formalizar todas las funciones y definiciones solicitadas.
-; Se obtuvo la metodología de comparación, usos de boolenos y funciones de chequeo, y manejos de variables
-; en chequeo e inferencia de invariantes estáticos o tipos y en entornos. (Capitulo 14 - 15)
+; Se obtuvo la metodología de comparación, usos de boolenos, uso de funciones de chequeo, manejos de variables
+; en chequeo e inferencia de invariantes estáticos o tipos en entornos, desde el libro mencionado 
+; (Capitulo 14 - 15), la documentación de referencias de racket y el lenguaje play en su respectiva pagina web,
+; y paginas de manejo de tipos en racket como https://courses.cs.washington.edu/courses/cse341/19sp/unit6notes.pdf.
+; También se recurrió a la idea de interprete de tipos en libros de introducción a lenguajes de programación en 
+; otros lenguajes como haskell, scheme, ML, Scala y Perl.
 
 (define (lookupT-env x env)
   (match env
@@ -178,6 +182,13 @@
     ]
   )
 )
+
+; Para realizar las funciones que comparan tipos, y ven si una variable es de un tipo especifico, se recurrió 
+; a bibliografía nuevamente, entre ellas el libro "Type Systemsfor Programming Languages" de Pierce en sus capitulos
+; sobre definicion de tipos equivalencias y unificación bajo inferencia de tipo (http://ropas.snu.ac.kr/~kwang/520/pierce_book.pdf)
+; y la wikipedia para el procedimiento de tipación y unificación, asi como el manejo de listas y contrains en un
+; lenguaje funcional para determinar un tipo final. 
+
 
 (define (compararTipoConstrain tipoExpresion TVar_aBuscar tipoParaReemplazar)
   (match tipoExpresion
