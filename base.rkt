@@ -290,9 +290,8 @@
 (define (unify listaConstrains)
   (if (empty? listaConstrains)
     empty
-    (
-      (define cabeza (car listaConstrains))
-      (define cola (cdr listaConstrains))
+    (let* ([cabeza (car listaConstrains)]
+           [cola (cdr listaConstrains)])  
       (match cabeza
         [(Cnst termino1 termino2)
           (if (compararTipoEntreDosExpresiones termino1 termino2)
@@ -308,9 +307,8 @@
                   (list (Cnst termino2 termino1))
                 )
                 (if (and (esTFun? termino1) (esTFun? termino2))
-                  (
-                    (define (TFun entradaTermino1 salidaTermino1) termino1)
-                    (define (TFun entradaTermino2 salidaTermino2) termino2)
+                  (let*-values ([(TFun entradaTermino1 salidaTermino1) termino1]
+                                [(TFun entradaTermino2 salidaTermino2) termino2])
                     (unify 
                       (append
                         cola
