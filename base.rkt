@@ -233,6 +233,14 @@
   )
 )
 
+(define (esTFun? tipoVariable)
+  (match tipoVariable
+    [(TNum) #f]
+    [(TVar numero) #f]
+    [(TFun entrada salida) #t]
+  )
+)
+
 (define (esSubExpresion? tvar tipo)
   (match tipo
     [(TNum) #f]
@@ -279,18 +287,47 @@
   )
 )
 
-;(define (unify listaConstrains)
-;  (if (empty? listaConstrains)
-;    empty
-;    (define cabeza (car listaConstrains))
-;    (define cola (cdr listaConstrains))
-;    (match cabeza
-;      [(Cnst termino1 termino2)
-;        
-;      ]
-;    )  
-;  )
-;)
+(define (unify listaConstrains)
+  (if (empty? listaConstrains)
+    empty
+    (define cabeza (car listaConstrains))
+    (define cola (cdr listaConstrains))
+    (match cabeza
+      [(Cnst termino1 termino2)
+        (if (compararTipoEntreDosExpresiones termino1 termino2)
+          (unify cola)
+          (if (and (esTVar? termino1) (not (esSubExpresion? termino1 termino2)))
+            (append
+              (unify (substitute termino1 termino2 cola))
+              (list (Cnst termino1 termino2))
+            )
+            (if (and (esTVar? termino2) (not (esSubExpresion? termino2 termino1)))
+              (append
+                (unify (substitute termino2 termino1 cola))
+                (list (Cnst termino2 termino1))
+              )
+              (if (and (esTFun? termino1) (esTFun? termino2))
+                (
+                  (define (TFun entradaTermino1 salidaTermino1) termino1)
+                  (define (TFun entradaTermino2 salidaTermino2) termino2)
+                  (unify 
+                    (append
+                      cola
+                      (list (Cnst entradaTermino1 entradaTermino2)
+                            (Cnst salidaTermino1 salidaTermino2)
+                      )
+                    )
+                  )
+                )
+                (error 'Exception: "Type error: cannot unify ~a with ~a" (prettyfy termino1) (prettyfy termino2))
+              )
+            )
+          )
+        )
+      ]
+    )  
+  )
+)
 
 (define (lookup-list _list var)
   (void))
