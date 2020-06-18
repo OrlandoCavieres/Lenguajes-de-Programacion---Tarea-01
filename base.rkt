@@ -225,6 +225,14 @@
   )
 )
 
+(define (esTNum? tipoVariable)
+  (match tipoVariable
+    [(TNum) #t]
+    [(TVar numero) #f]
+    [(TFun entrada salida) #f]
+  )
+)
+
 (define (esTVar? tipoVariable)
   (match tipoVariable
     [(TNum) #f]
@@ -261,27 +269,23 @@
 
 (define (compararTipoEntreDosExpresiones primerTipo segundoTipo)
   (match primerTipo
-    [(TNum) 
-      (match segundoTipo
-        [(TNum) #t]
-        [(TVar numero) #f]
-        [(TFun entrada salida) #f]
-      )
-    ]
+    [(TNum) (esTNum? segundoTipo)]
     [(TVar primerNumero)
-      (match segundoTipo
-        [(TNum) #f]
-        [(TVar segundoNumero) (equal? primerNumero segundoNumero)]
-        [(TFun entrada salida) #f]
+      (if (esTVar? segundoTipo)
+        (match segundoTipo
+          [(TVar segundoNumero) (equal? primerNumero segundoNumero)]
+        )
+        #f
       )
     ]
     [(TFun T1entrada T1salida)
-      (match segundoTipo
-        [(TNum) #f]
-        [(TVar numero) #f]
-        [(TFun T2entrada T2salida) 
-          (and (compararTipoEntreDosExpresiones T1entrada T2entrada) (compararTipoEntreDosExpresiones T1salida T2salida))
-        ]
+      (if (esTFun? segundoTipo)
+        (match segundoTipo
+          [(TFun T2entrada T2salida) 
+            (and (compararTipoEntreDosExpresiones T1entrada T2entrada) (compararTipoEntreDosExpresiones T1salida T2salida))
+          ]
+        )
+        #f
       )
     ]
   )
