@@ -120,7 +120,7 @@
 
 (define (lookupT-env x env)
   (match env
-    [(mtTEnv) (error "identificador libre!!" x)]
+    [(mtTEnv) (error 'Exception "identificador libre!! ~a" x)]
     [(anTEnv id Type restoTEnv)
      (if (equal? id x)
          Type
@@ -364,4 +364,9 @@
 )
   
 (define (runType s-expr)
-  (void))
+  (define resultadoFuncionTypeof (typeof (parse s-expr) envVacio))
+  (define tipoExpresion (car resultadoFuncionTypeof))
+  (define constrainsExpresion (cdr resultadoFuncionTypeof))
+  (define listaContrainsProcesadoConUnify (unify constrainsExpresion))
+  (lookup-list listaContrainsProcesadoConUnify tipoExpresion)
+)
