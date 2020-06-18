@@ -49,6 +49,7 @@
 
 (printf "---------- Test (unify) ----------\n\n")
 
+(test (unify '()) '())
 (test (unify (list (Cnst (TNum) (TNum)) (Cnst (TVar 2) (TNum)))) (list (Cnst (TVar 2) (TNum))))
 (test (unify (list (Cnst (TNum) (TNum)) (Cnst (TNum) (TNum)) (Cnst (TNum) (TNum)))) '())
 (test (unify (list (Cnst (TVar 2) (TFun (TNum) (TVar 3))) (Cnst (TFun (TVar 1) (TVar 4)) (TVar 2))))
