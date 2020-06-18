@@ -4,11 +4,11 @@
 ; test typeof:
 (printf "\n---------- Test (typeof) ----------\n\n")
 
-(test (typeof (parse 6)(mtTEnv)) (list (TNum)))
-(test (typeof (num 3)(mtTEnv)) (list (TNum)))
+(test (typeof (parse 6) (mtTEnv)) (list (TNum)))
+(test (typeof (num 3) (mtTEnv)) (list (TNum)))
 (test (typeof (parse '{+ {+ {- 6 5} 4} 6})(mtTEnv)) 
     (list (TNum) (Cnst (TNum) (TNum)) (Cnst (TNum) (TNum)) (Cnst (TNum) (TNum)) (Cnst (TNum) (TNum)) (Cnst (TNum) (TNum)) (Cnst (TNum) (TNum))))
-(test (typeof (parse '{+ 10 12})(mtTEnv)) (list (TNum) (Cnst (TNum) (TNum)) (Cnst (TNum) (TNum))))
+(test (typeof (parse '{+ 10 12}) (mtTEnv)) (list (TNum) (Cnst (TNum) (TNum)) (Cnst (TNum) (TNum))))
 (test (typeof (add (num 10) (num 3)) (mtTEnv)) ( list ( TNum ) ( Cnst ( TNum ) ( TNum )) ( Cnst ( TNum ) ( TNum ))))
 (test (typeof (parse 'x)(anTEnv 'x (TNum) (mtTEnv))) (list (TNum)))
 (reset)
@@ -38,6 +38,9 @@
 (test/exn (typeof (id 'x) (mtTEnv)) "Exception: Identificador libre = x")
 (reset)
 (test (typeof (if0 (num 2) (num 5) (num 3)) (mtTEnv)) (list (TNum) (Cnst (TNum) (TNum)) (Cnst (TNum) (TNum))))
+(reset)
+(test (typeof (fun 'x (if0 (num 1) (add (num 4) (sub (num 2) (id 'x))) (if0 (num 1) (num 6) (num 12)))) (mtTEnv)) 
+    (list (TFun (TVar 1) (TNum)) (Cnst (TNum) (TNum)) (Cnst (TVar 1) (TNum)) (Cnst (TNum) (TNum)) (Cnst (TNum) (TNum)) (Cnst (TNum) (TNum)) (Cnst (TNum) (TNum)) (Cnst (TNum) (TNum)) (Cnst (TNum) (TNum))))
 
 (printf "---------- Test (substitute) ----------\n\n")
 
