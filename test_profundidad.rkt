@@ -56,3 +56,9 @@
       (list (Cnst (TVar 4) (TVar 3)) (Cnst (TVar 1) (TNum)) (Cnst (TVar 2) (TFun (TNum) (TVar 3)))))
 (test/exn (unify (list (Cnst (TNum) (TNum)) (Cnst (TNum) (TNum)) (Cnst (TVar 1) (TFun (TVar 1) (TFun (TVar 1) (TVar 2)))))) 
       "Exception: Type error: cannot unify (TVar 1) with (TFun (TVar 1) (TFun (TVar 1) (TVar 2)))")
+
+(printf "---------- Test (lookup-list) ----------\n\n")
+
+(test (lookup-list '() (TNum)) (TNum))
+(test (lookup-list (list (Cnst (TVar 1) (TNum)) (Cnst (TVar 2) (TNum)) (Cnst (TNum) (TNum))) (TVar 2)) (TNum))
+(test (lookup-list (list (Cnst (TVar 1) (TFun (TNum) (TVar 2))) (Cnst (TVar 2) (TNum))) (TVar 1)) (TFun (TNum) (TNum)))
