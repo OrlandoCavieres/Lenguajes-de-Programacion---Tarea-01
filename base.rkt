@@ -343,13 +343,21 @@
     variableTipo
     (let* ([cabeza (car listaConstrains)]
            [cola (cdr listaConstrains)])
-      (match cabeza
-        [(Cnst termino1 termino2)
-          (if (compararTipoEntreDosExpresiones termino1 variableTipo)
-            termino2
-            (lookup-list cola variableTipo)
+      (if (esTNum? variableTipo)
+        variableTipo
+        (if (esTFun? variableTipo)
+          (match variableTipo
+            [(TFun entrada salida) (TFun (lookup-list listaConstrains entrada) (lookup-list listaConstrains salida))]
           )
-        ]
+          (match cabeza
+            [(Cnst termino1 termino2)
+              (if (compararTipoEntreDosExpresiones termino1 variableTipo)
+                (lookup-list listaConstrains termino2)
+                (lookup-list cola variableTipo)
+              )
+            ]
+          )
+        )
       )
     )
   )
