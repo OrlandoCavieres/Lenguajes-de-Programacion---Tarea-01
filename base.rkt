@@ -116,7 +116,7 @@
 ; (Capitulo 14 - 15), la documentación de referencias de racket y el lenguaje play en su respectiva pagina web,
 ; y paginas de manejo de tipos en racket como https://courses.cs.washington.edu/courses/cse341/19sp/unit6notes.pdf.
 ; También se recurrió a la idea de interprete de tipos en libros de introducción a lenguajes de programación en 
-; otros lenguajes como haskell, scheme, ML, Scala y Perl.
+; otros lenguajes como Haskell, Scheme, ML, Scala, Perl y Python.
 
 (define (lookupT-env x env)
   (match env
@@ -187,7 +187,11 @@
 ; a bibliografía nuevamente, entre ellas el libro "Type Systemsfor Programming Languages" de Pierce en sus capitulos
 ; sobre definicion de tipos equivalencias y unificación bajo inferencia de tipo (http://ropas.snu.ac.kr/~kwang/520/pierce_book.pdf)
 ; y la wikipedia para el procedimiento de tipación y unificación, asi como el manejo de listas y contrains en un
-; lenguaje funcional para determinar un tipo final. 
+; lenguaje funcional para determinar un tipo final.
+; https://en.wikipedia.org/wiki/Type_inference  https://en.wikipedia.org/wiki/Type_system  
+; https://en.wikipedia.org/wiki/Unification_(computer_science)
+; https://en.wikipedia.org/wiki/Occurs_check 
+; http://scheme2006.cs.uchicago.edu/13-siek.pdf 
 
 
 (define (compararTipoConstrain tipoExpresion TVar_aBuscar tipoParaReemplazar)
