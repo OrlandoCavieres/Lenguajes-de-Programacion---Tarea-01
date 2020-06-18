@@ -114,13 +114,9 @@
 ; Se obtuvo la metodología de comparación, usos de boolenos y funciones de chequeo, y manejos de variables
 ; en chequeo e inferencia de invariantes estáticos o tipos y en entornos. (Capitulo 14 - 15)
 
-(define envVacio mtTEnv)
-
-(define extenderEnv anTEnv)
-
 (define (lookupT-env x env)
   (match env
-    [(mtTEnv) (error 'Exception "identificador libre!! ~a" x)]
+    [(mtTEnv) (error 'Exception "Identificador libre = ~a" x)]
     [(anTEnv id Type restoTEnv)
      (if (equal? id x)
          Type
@@ -163,7 +159,7 @@
     ]
     [(fun argumento cuerpoFuncion)
       (define tipoVar (TVar (get-id)))
-      (define nuevoEnv (extenderEnv argumento (TVar count) Tenv))
+      (define nuevoEnv (anTEnv argumento (TVar count) Tenv))
       (define nuevoCuerpo (typeof cuerpoFuncion nuevoEnv))
       (append (list (TFun (lookupT-env argumento nuevoEnv) (car nuevoCuerpo))) (cdr nuevoCuerpo))
     ]
@@ -171,7 +167,7 @@
       (define tipoFuncion (typeof fun Tenv))
       (define tipoParametro (typeof parametro Tenv))
       (define tipoVar (TVar (get-id)))
-      (define nuevoAppEnv (extenderEnv (app fun parametro) (TVar count) Tenv))
+      (define nuevoAppEnv (anTEnv (app fun parametro) (TVar count) Tenv))
       (define tipoApp (lookupT-env (app fun parametro) nuevoAppEnv))
       (append
         (list tipoVar)
@@ -327,7 +323,7 @@
                       )  
                     ]
                   )
-                  (error 'Exception "Type error: cannot unify ~a with ~a" (prettyfy termino1) (prettyfy termino2))
+                  (error 'Exception "Error de Tipo: no se puede unificar [~a] con [~a]" (prettyfy termino1) (prettyfy termino2))
                 )
               )
             )
@@ -364,7 +360,7 @@
 )
   
 (define (runType s-expr)
-  (define resultadoFuncionTypeof (typeof (parse s-expr) envVacio))
+  (define resultadoFuncionTypeof (typeof (parse s-expr) (mtTEnv)))
   (define tipoExpresion (car resultadoFuncionTypeof))
   (define constrainsExpresion (cdr resultadoFuncionTypeof))
   (define listaContrainsProcesadoConUnify (unify constrainsExpresion))
