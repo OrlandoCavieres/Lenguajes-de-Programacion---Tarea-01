@@ -307,18 +307,23 @@
                   (list (Cnst termino2 termino1))
                 )
                 (if (and (esTFun? termino1) (esTFun? termino2))
-                  (let*-values ([(TFun entradaTermino1 salidaTermino1) termino1]
-                                [(TFun entradaTermino2 salidaTermino2) termino2])
-                    (unify 
-                      (append
-                        cola
-                        (list (Cnst entradaTermino1 entradaTermino2)
-                              (Cnst salidaTermino1 salidaTermino2)
-                        )
-                      )
-                    )
+                  (match termino1
+                    [(TFun entradaTermino1 salidaTermino1)
+                      (match termino2
+                        [(TFun entradaTermino2 salidaTermino2)
+                          (unify 
+                            (append
+                              cola
+                              (list (Cnst entradaTermino1 entradaTermino2)
+                                    (Cnst salidaTermino1 salidaTermino2)
+                              )
+                            )
+                          )
+                        ]
+                      )  
+                    ]
                   )
-                  (error 'Exception: "Type error: cannot unify ~a with ~a" (prettyfy termino1) (prettyfy termino2))
+                  (error 'Exception "Type error: cannot unify ~a with ~a" (prettyfy termino1) (prettyfy termino2))
                 )
               )
             )
