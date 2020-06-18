@@ -323,7 +323,7 @@
                       )  
                     ]
                   )
-                  (error 'Exception "Error de Tipo: no se puede unificar [~a] con [~a]" (prettyfy termino1) (prettyfy termino2))
+                  (error 'Exception "Error de Tipo: No se puede unificar [~a] con [~a]" (prettyfy termino1) (prettyfy termino2))
                 )
               )
             )
