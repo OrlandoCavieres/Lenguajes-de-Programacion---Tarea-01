@@ -338,8 +338,22 @@
   )
 )
 
-(define (lookup-list _list var)
-  (void))
-
+(define (lookup-list listaConstrains variableTipo)
+  (if (empty? listaConstrains)
+    variableTipo
+    (let* ([cabeza (car listaConstrains)]
+           [cola (cdr listaConstrains)])
+      (match cabeza
+        [(Cnst termino1 termino2)
+          (if (compararTipoEntreDosExpresiones termino1 variableTipo)
+            termino2
+            (lookup-list cola variableTipo)
+          )
+        ]
+      )
+    )
+  )
+)
+  
 (define (runType s-expr)
   (void))
