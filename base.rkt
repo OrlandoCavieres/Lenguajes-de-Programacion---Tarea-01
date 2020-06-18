@@ -183,11 +183,12 @@
   )
 )
 
-; Para realizar las funciones que comparan tipos, y ven si una variable es de un tipo especifico, se recurrió 
-; a bibliografía nuevamente, entre ellas el libro "Type Systemsfor Programming Languages" de Pierce en sus capitulos
-; sobre definicion de tipos equivalencias y unificación bajo inferencia de tipo (http://ropas.snu.ac.kr/~kwang/520/pierce_book.pdf)
-; y la wikipedia para el procedimiento de tipación y unificación, asi como el manejo de listas y contrains en un
-; lenguaje funcional para determinar un tipo final.
+; Para realizar las funciones que comparan tipos, las funciones que verifican si una variable es de un tipo 
+; especifico, función de unificación y reemplazo de tipo, se recurrió a bibliografía nuevamente, entre ellas
+; el libro "Type Systemsfor Programming Languages" de Pierce en sus capitulos sobre definicion de tipos, 
+; equivalencias y unificación bajo inferencia de tipo (http://ropas.snu.ac.kr/~kwang/520/pierce_book.pdf)
+; y la wikipedia para el procedimiento de tipación y unificación, asi como el manejo de listas y contrains
+; en un lenguaje funcional para determinar un tipo final.
 ; https://en.wikipedia.org/wiki/Type_inference  https://en.wikipedia.org/wiki/Type_system  
 ; https://en.wikipedia.org/wiki/Unification_(computer_science)
 ; https://en.wikipedia.org/wiki/Occurs_check 
