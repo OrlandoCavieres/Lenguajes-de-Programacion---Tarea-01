@@ -183,40 +183,44 @@
   )
 )
 
-(define (compararTipoConstrain typeVariable tvar type)
-  (match typeVariable
+(define (compararTipoConstrain tipoExpresion TVar_aBuscar tipoParaReemplazar)
+  (match tipoExpresion
     [(TNum) (TNum)]
     [(TVar numero) 
       (if 
-        (match typeVariable
+        (match tipoExpresion
           [(TVar primerNumero) 
-            (match tvar
+            (match TVar_aBuscar
               [(TVar segundoNumero) (equal? primerNumero segundoNumero)] 
             )
           ]
         )
-        type
-        typeVariable
+        tipoParaReemplazar
+        tipoExpresion
       )
     ]
     [(TFun entrada salida) 
-      (TFun (compararTipoConstrain entrada tvar type) (compararTipoConstrain salida tvar type))
+      (TFun (compararTipoConstrain entrada TVar_aBuscar tipoParaReemplazar) 
+            (compararTipoConstrain salida TVar_aBuscar tipoParaReemplazar)
+      )
     ]
   )
 )
 
-(define (substitute tvar type listaConstrains)
+(define (substitute TVar_aBuscar tipoParaReemplazar listaConstrains)
   (if (empty? listaConstrains)
     listaConstrains
     (append 
       (list 
         (match (car listaConstrains)
-          [(Cnst T1 T2) 
-            (Cnst (compararTipoConstrain T1 tvar type) (compararTipoConstrain T2 tvar type))
+          [(Cnst tipoExpresion1 tipoExpresion2) 
+            (Cnst (compararTipoConstrain tipoExpresion1 TVar_aBuscar tipoParaReemplazar) 
+                  (compararTipoConstrain tipoExpresion2 TVar_aBuscar tipoParaReemplazar)
+            )
           ]
         )
       )
-      (substitute tvar type (cdr listaConstrains))
+      (substitute TVar_aBuscar tipoParaReemplazar (cdr listaConstrains))
     )
   )
 )
