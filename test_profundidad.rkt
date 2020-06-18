@@ -46,3 +46,12 @@
 (test (substitute (TVar 5) (TNum) (list (Cnst (TFun (TVar 1) (TFun (TVar 5) (TVar 3))) (TFun (TVar 1) (TNum))))) 
     (list (Cnst (TFun (TVar 1) (TFun (TNum) (TVar 3))) (TFun (TVar 1) (TNum)))))
 (test (substitute (TVar 1) (TNum) (list (Cnst (TFun (TVar 1) (TVar 1)) (TFun (TNum) (TVar 2))))) (list (Cnst (TFun (TNum) (TNum)) (TFun (TNum) (TVar 2)))))
+
+(printf "---------- Test (unify) ----------\n\n")
+
+(test (unify (list (Cnst (TNum) (TNum)) (Cnst (TVar 2) (TNum)))) (list (Cnst (TVar 2) (TNum))))
+(test (unify (list (Cnst (TNum) (TNum)) (Cnst (TNum) (TNum)) (Cnst (TNum) (TNum)))) '())
+(test (unify (list (Cnst (TVar 2) (TFun (TNum) (TVar 3))) (Cnst (TFun (TVar 1) (TVar 4)) (TVar 2))))
+      (list (Cnst (TVar 4) (TVar 3)) (Cnst (TVar 1) (TNum)) (Cnst (TVar 2) (TFun (TNum) (TVar 3)))))
+(test/exn (unify (list (Cnst (TNum) (TNum)) (Cnst (TNum) (TNum)) (Cnst (TVar 1) (TFun (TVar 1) (TFun (TVar 1) (TVar 2)))))) 
+      "Exception: Type error: cannot unify (TVar 1) with (TFun (TVar 1) (TFun (TVar 1) (TVar 2)))")
