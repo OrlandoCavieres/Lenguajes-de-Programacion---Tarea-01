@@ -108,24 +108,39 @@
 
 ;################################ Su código va aquí ###########################
 
-; Definiciones obtenidas del libro 
-; "Programming Languages: Application and Interpretation" de Shriram Krishnamurthi
-; Se abstrayeron los algoritmos para formalizar todas las funciones y definiciones solicitadas.
-; Se obtuvo la metodología de comparación, usos de boolenos, uso de funciones de chequeo, manejos de variables
-; en chequeo e inferencia de invariantes estáticos o tipos en entornos, desde el libro mencionado 
-; (Capitulo 14 - 15), la documentación de referencias de racket y el lenguaje play en su respectiva pagina web,
-; y paginas de manejo de tipos en racket como https://courses.cs.washington.edu/courses/cse341/19sp/unit6notes.pdf.
-; También se recurrió a la idea de interprete de tipos en libros de introducción a lenguajes de programación en 
-; otros lenguajes como Haskell, Scheme, ML, Scala, Perl y Python.
+#|  Definiciones obtenidas del libro 
+    "Programming Languages: Application and Interpretation" de Shriram Krishnamurthi
+    Se abstrayeron los algoritmos para formalizar todas las funciones y definiciones solicitadas.
+    Se obtuvo la metodología de comparación, usos de boolenos, uso de funciones de chequeo, manejos de variables
+    en chequeo e inferencia de invariantes estáticos o tipos en entornos, desde el libro mencionado 
+    (Capitulo 14 - 15), la documentación de referencias de racket y el lenguaje play en su respectiva pagina web,
+    y paginas de manejo de tipos en racket como https://courses.cs.washington.edu/courses/cse341/19sp/unit6notes.pdf.
+    También se recurrió a la idea de interprete de tipos en libros de introducción a lenguajes de programación en 
+    otros lenguajes como Haskell, Scheme, ML, Scala, Perl y Python. |#
 
-(define (lookupT-env x env)
-  (match env
+
+#|  lookupT-env :: id Tenv -> Type
+    Función que dado un identificador (id) y un ambiente de tipos (Tenv), retorna el tipo asociado (Type) 
+    al identificador. 
+    Ejemplo: (lookupT-env 'x (anTEnv 'x (TVar 1) (mtTEnv))) -> (TVar 1)|#
+(define (lookupT-env x Tenv)
+  (match Tenv
     [(mtTEnv) (error 'Exception "Identificador libre = ~a" x)]
     [(anTEnv id Type restoTEnv)
      (if (equal? id x)
          Type
          (lookupT-env x restoTEnv))]))
 
+#|  typeof :: expr TEnv -> list[Type, list[Constraints]]
+    Función que dada una expresion (expr) y un ambiente de tipos (TEnv), retorna el tipo de la expresión
+    con la lista de constraints que debe ser solucionada para que el programa sea válido en tipos. La
+    función reporta errores solo en caso de identificadores libres. 
+    Es una función recursiva que en cada llave de posibilidad de la expresión establece una relación de tipo
+    base y de los contraints necesarios de solucionar para aquel tipo. Para ello emplea la estructura constraint
+    y puede añadir variables al ambiente de tipos (Tenv) al llamar a la funcion lookupT-env.
+    Retorna una lista cuyo primer elemento es el posible tipo final de la expresión y su lista de constraints
+    concatenada. 
+    Ejemplo: (typeof (add (num 10) (num 3)) (mtTEnv)) -> (list (TNum) (Cnst (TNum) (TNum)) (Cnst (TNum) (TNum))) |#
 (define (typeof expr Tenv)
   (match expr
     [(num n) (list (TNum))]
@@ -194,9 +209,14 @@
 ; https://en.wikipedia.org/wiki/Occurs_check 
 ; http://scheme2006.cs.uchicago.edu/13-siek.pdf 
 
-#|  compararyReemplazarTipoContrain
-
-|#
+#|  compararyReemplazarTipoContrain :: Type1 TVar Type2 -> Type
+    Función que a partir de un TVar a buscar, el tipo de una expresión (Type (1)) y un tipo a reemplazar 
+    (Type (2)), determina si el TVar es igual al tipo de la expresión y si lo es, retorna el tipo a reemplazar.
+    Caso contrario retorna el tipo de la expresión. 
+    La función hace recursión si el tipo de la expresión es TFun, ya que debe buscar en su interior si 
+    existe un TVar válido para reemplazo. En caso que sea TNum se retorna TNum, ya que no sería un TVar que 
+    necesite de reemplazo.
+    Ejemplo: (compararyReemplazarTipoConstrain (TVar 2) (TVar 2) (TNum)) -> (TNum) |#
 (define (compararyReemplazarTipoConstrain tipoExpresion TVar_aBuscar tipoParaReemplazar)
   (match tipoExpresion
     [(TNum) (TNum)]
@@ -265,9 +285,12 @@
   )
 )
 
-#|  
-
-|#
+#|  compararTipoEntreDosExpresiones :: Type Type -> bool
+    Función que compara dos tipos para ver si son iguales o no.
+    Verifica si ambos son TNum o no, si ambos son Tvar o no, o si ambos son TFun o no. En el caso 
+    de que ambas sean TFun, se produce recursión en la función, realizando así la misma comparación entre
+    los parametros del tipo TFun que deber ser iguales.
+    Ejemplo: (compararTipoEntreDosExpresiones (TVar 1) (TVar 1)) -> #t  |#
 (define (compararTipoEntreDosExpresiones primerTipo segundoTipo)
   (match primerTipo
     [(TNum) (TNum? segundoTipo)]
@@ -292,6 +315,15 @@
   )
 )
 
+#|  unify :: list[Constraints] -> list[Constraints]
+    Función que dada una lista de constraints retorna una lista "unificada" de constraints, que consiste
+    en una lista simplificada de los constraints presentes en la lista original, donde se encuentran mejor
+    relacionados los tipos involucrados.
+    La función emplea funciones auxiliares de verificación de tipo booleana tales como TVar?, TFun? y 
+    esSubexpresion?, así como la función de comparación recursiva compararTipoEntreDosExpresiones.
+    La función es recursiva, avanzando por la lista de constraints y analizando cada uno de sus elementos
+    para establecer constraints nuevos, cambiando tipos conocidos y así simplificando la lista original.
+    Ejemplo: (unify (list (Cnst (TNum) (TNum)) (Cnst (TVar 2) (TNum)))) -> (list (Cnst (TVar 2) (TNum))) |#
 (define (unify listaConstrains)
   (if (empty? listaConstrains)
     empty
