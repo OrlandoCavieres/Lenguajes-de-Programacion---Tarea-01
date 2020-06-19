@@ -245,42 +245,6 @@
   )
 )
 
-#|  esTNum? :: Type -> bool
-    Función que verifica que la variable tipo (Type) es del tipo TNum. 
-    Retorna #t si lo es, caso contrario retorna #f.
-    Ejemplo: (esTNum? (TNum)) -> #t |#
-(define (esTNum? tipoVariable)
-  (match tipoVariable
-    [(TNum) #t]
-    [(TVar numero) #f]
-    [(TFun entrada salida) #f]
-  )
-)
-
-#|  esTVar? :: Type -> bool
-    Función que verifica que la variable tipo (Type) es del tipo TVar. 
-    Retorna #t si lo es, caso contrario retorna #f.
-    Ejemplo: (esTVar? (TVar 5)) -> #t |#
-(define (esTVar? tipoVariable)
-  (match tipoVariable
-    [(TNum) #f]
-    [(TVar numero) #t]
-    [(TFun entrada salida) #f]
-  )
-)
-
-#|  esTFun? :: Type -> bool
-    Función que verifica que la variable tipo (Type) es del tipo TFun.
-    Retorna #t si lo es, caso contrario retorna #f.
-    Ejemplo: (esTFun? (TNum)) -> #f |#
-(define (esTFun? tipoVariable)
-  (match tipoVariable
-    [(TNum) #f]
-    [(TVar numero) #f]
-    [(TFun entrada salida) #t]
-  )
-)
-
 #|  esSubexpresion? :: TVar Type -> bool
     Función que verifica si un TVar se encuentra como un subtipo de otra expresión de tipos.
     La función es recursiva recorriendo la expresion desde lo más externo hacia lo más interno.
@@ -304,12 +268,11 @@
 #|  
 
 |#
-
 (define (compararTipoEntreDosExpresiones primerTipo segundoTipo)
   (match primerTipo
-    [(TNum) (esTNum? segundoTipo)]
+    [(TNum) (TNum? segundoTipo)]
     [(TVar primerNumero)
-      (if (esTVar? segundoTipo)
+      (if (TVar? segundoTipo)
         (match segundoTipo
           [(TVar segundoNumero) (equal? primerNumero segundoNumero)]
         )
@@ -317,7 +280,7 @@
       )
     ]
     [(TFun T1entrada T1salida)
-      (if (esTFun? segundoTipo)
+      (if (TFun? segundoTipo)
         (match segundoTipo
           [(TFun T2entrada T2salida) 
             (and (compararTipoEntreDosExpresiones T1entrada T2entrada) (compararTipoEntreDosExpresiones T1salida T2salida))
@@ -338,17 +301,17 @@
         [(Cnst termino1 termino2)
           (if (compararTipoEntreDosExpresiones termino1 termino2)
             (unify cola)
-            (if (and (esTVar? termino1) (not (esSubExpresion? termino1 termino2)))
+            (if (and (TVar? termino1) (not (esSubExpresion? termino1 termino2)))
               (append
                 (unify (substitute termino1 termino2 cola))
                 (list (Cnst termino1 termino2))
               )
-              (if (and (esTVar? termino2) (not (esSubExpresion? termino2 termino1)))
+              (if (and (TVar? termino2) (not (esSubExpresion? termino2 termino1)))
                 (append
                   (unify (substitute termino2 termino1 cola))
                   (list (Cnst termino2 termino1))
                 )
-                (if (and (esTFun? termino1) (esTFun? termino2))
+                (if (and (TFun? termino1) (TFun? termino2))
                   (match termino1
                     [(TFun entradaTermino1 salidaTermino1)
                       (match termino2
@@ -388,9 +351,9 @@
     variableTipo
     (let* ([cabeza (car listaConstrains)]
            [cola (cdr listaConstrains)])
-      (if (esTNum? variableTipo)
+      (if (TNum? variableTipo)
         variableTipo
-        (if (esTFun? variableTipo)
+        (if (TFun? variableTipo)
           (match variableTipo
             [(TFun entrada salida) (TFun (lookup-list listaConstrains entrada) (lookup-list listaConstrains salida))]
           )
