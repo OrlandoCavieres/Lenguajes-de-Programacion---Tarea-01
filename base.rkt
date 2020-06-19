@@ -185,7 +185,7 @@
 
 ; Para realizar las funciones que comparan tipos, las funciones que verifican si una variable es de un tipo 
 ; especifico, función de unificación y reemplazo de tipo, se recurrió a bibliografía nuevamente, entre ellas
-; el libro "Type Systemsfor Programming Languages" de Pierce en sus capitulos sobre definicion de tipos, 
+; el libro "Type Systems for Programming Languages" de Pierce en sus capitulos sobre definicion de tipos, 
 ; equivalencias y unificación bajo inferencia de tipo (http://ropas.snu.ac.kr/~kwang/520/pierce_book.pdf)
 ; y la wikipedia para el procedimiento de tipación y unificación, asi como el manejo de listas y contrains
 ; en un lenguaje funcional para determinar un tipo final.
@@ -194,31 +194,39 @@
 ; https://en.wikipedia.org/wiki/Occurs_check 
 ; http://scheme2006.cs.uchicago.edu/13-siek.pdf 
 
+#|  compararyReemplazarTipoContrain
 
-(define (compararTipoConstrain tipoExpresion TVar_aBuscar tipoParaReemplazar)
+|#
+(define (compararyReemplazarTipoConstrain tipoExpresion TVar_aBuscar tipoParaReemplazar)
   (match tipoExpresion
     [(TNum) (TNum)]
-    [(TVar numero) 
+    [(TVar primerNumero) 
       (if 
-        (match tipoExpresion
-          [(TVar primerNumero) 
-            (match TVar_aBuscar
+        (match TVar_aBuscar
               [(TVar segundoNumero) (equal? primerNumero segundoNumero)] 
-            )
-          ]
         )
         tipoParaReemplazar
         tipoExpresion
       )
     ]
     [(TFun entrada salida) 
-      (TFun (compararTipoConstrain entrada TVar_aBuscar tipoParaReemplazar) 
-            (compararTipoConstrain salida TVar_aBuscar tipoParaReemplazar)
+      (TFun (compararyReemplazarTipoConstrain entrada TVar_aBuscar tipoParaReemplazar) 
+            (compararyReemplazarTipoConstrain salida TVar_aBuscar tipoParaReemplazar)
       )
     ]
   )
 )
 
+#|  substitute :: TVar Type List[Constraints] -> List[Constraints]
+    Función que reemplaza todas las ocurrencias de TVar en List[Constraints] de entrada por el Type señalado,
+    retornando una nueva lista List[Constraints] con todos los TVar señalados presentes en ella originalmente
+    sustituidos.
+    La función avanza recursivamente por List[Constraints] comparando los tipos asociados al constraint de la
+    cabeza con el TVar a reemplazar y reemplazandolo por el Type, al emplear la función auxiliar asociada
+    compararyReemplazarTipoConstraint. Una vez finaliza de reemplazar, se genera un nuevo constraint, el que es 
+    añadido a una nueva lista, la que finalmente es retornada como resultado.
+    Ejemplo: (substitute (TVar 1) (TNum) (list (Cnst (TNum) (TNum)) (Cnst (TVar 1) (TNum)))) ->
+             (list (Cnst (TNum) (TNum)) (Cnst (TNum) (TNum))) |#
 (define (substitute TVar_aBuscar tipoParaReemplazar listaConstrains)
   (if (empty? listaConstrains)
     listaConstrains
@@ -226,8 +234,8 @@
       (list 
         (match (car listaConstrains)
           [(Cnst tipoExpresion1 tipoExpresion2) 
-            (Cnst (compararTipoConstrain tipoExpresion1 TVar_aBuscar tipoParaReemplazar) 
-                  (compararTipoConstrain tipoExpresion2 TVar_aBuscar tipoParaReemplazar)
+            (Cnst (compararyReemplazarTipoConstrain tipoExpresion1 TVar_aBuscar tipoParaReemplazar) 
+                  (compararyReemplazarTipoConstrain tipoExpresion2 TVar_aBuscar tipoParaReemplazar)
             )
           ]
         )
@@ -237,6 +245,10 @@
   )
 )
 
+#|  esTNum? :: Type -> bool
+    Función que verifica que la variable tipo (Type) es del tipo TNum. 
+    Retorna #t si lo es, caso contrario retorna #f.
+    Ejemplo: (esTNum? (TNum)) -> #t |#
 (define (esTNum? tipoVariable)
   (match tipoVariable
     [(TNum) #t]
@@ -245,6 +257,10 @@
   )
 )
 
+#|  esTVar? :: Type -> bool
+    Función que verifica que la variable tipo (Type) es del tipo TVar. 
+    Retorna #t si lo es, caso contrario retorna #f.
+    Ejemplo: (esTVar? (TVar 5)) -> #t |#
 (define (esTVar? tipoVariable)
   (match tipoVariable
     [(TNum) #f]
@@ -253,6 +269,10 @@
   )
 )
 
+#|  esTFun? :: Type -> bool
+    Función que verifica que la variable tipo (Type) es del tipo TFun.
+    Retorna #t si lo es, caso contrario retorna #f.
+    Ejemplo: (esTFun? (TNum)) -> #f |#
 (define (esTFun? tipoVariable)
   (match tipoVariable
     [(TNum) #f]
@@ -261,16 +281,18 @@
   )
 )
 
+#|  esSubexpresion? :: TVar Type -> bool
+    Función que verifica si un TVar se encuentra como un subtipo de otra expresión de tipos.
+    La función es recursiva recorriendo la expresion desde lo más externo hacia lo más interno.
+    Si el TVar se encuentra dentro de otra expresion o es igual, entonces retorna #t, caso contrario
+    retorna #f.
+    Ejemplo: (esSubexpresion? (TVar 1) (TNum)) -> #f |#
 (define (esSubExpresion? tvar tipo)
   (match tipo
     [(TNum) #f]
-    [(TVar n) 
+    [(TVar primerNumero) 
       (match tvar
-        [(TVar primerNumero) 
-          (match tipo
-            [(TVar segundoNumero) (equal? primerNumero segundoNumero)]
-          )
-        ]
+        [(TVar segundoNumero) (equal? primerNumero segundoNumero)]
       )
     ]
     [(TFun tipoEntrada tipoSalida)
@@ -278,6 +300,10 @@
     ]
   )
 )
+
+#|  
+
+|#
 
 (define (compararTipoEntreDosExpresiones primerTipo segundoTipo)
   (match primerTipo
@@ -350,6 +376,13 @@
   )
 )
 
+#|  loockup-list :: Lista[Constrains] Type(1) -> Type(2)
+    Función que a partir de una lista de constrains (Lista[contrains]) y una variable tipo (Type (1)), busca en la lista 
+    el tipo asociado (Type (2)) a la variable tipo (Type (1)). Si la lista esta vacia, retorna la variable tipo ingresada
+    como parametro (Type (1)).
+    La función avanza recursivamente por la lista de constrains, empleando funciones verificadores de tipo para TNum, TVar o
+    TFun, y buscando la variable tipo (Type (1)) dentro de funciones y del entorno de variables mediante su id. 
+    ejemplo: (lookup-list '() (TNum)) -> (TNum) |#
 (define (lookup-list listaConstrains variableTipo)
   (if (empty? listaConstrains)
     variableTipo
@@ -374,7 +407,10 @@
     )
   )
 )
-  
+#|  RunType :: S-Expr -> Type
+    Función que dada una expresión en sintasix concreta retorna su tipo final calculado con las funciones parse,
+    typeof, unify y lookup-list. Si no se cumplen las condiciones correctas entonces también puede retornar un error.
+    Ejemplo: (runType '{with {y 20} {- 40 y}}) -> (TNum) |#
 (define (runType s-expr)
   (define resultadoFuncionTypeof (typeof (parse s-expr) (mtTEnv)))
   (define tipoExpresion (car resultadoFuncionTypeof))
