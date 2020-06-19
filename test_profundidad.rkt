@@ -1,7 +1,18 @@
 #lang play
 (require "base.rkt")
 
-; test typeof:
+(printf "\n---------- Test (lookupT-env) ----------\n\n")
+(test/exn (lookupT-env 'z (anTEnv 'x (TVar 2) (mtTEnv))) "Exception: Identificador libre = z")
+(reset)
+(test (lookupT-env 'x (anTEnv 'x (TVar 1) (mtTEnv))) (TVar 1))
+(reset)
+(test/exn (lookupT-env 't (mtTEnv)) "Exception: Identificador libre = t")
+(reset)
+(test (lookupT-env 'e (anTEnv 'q (TVar 1) (anTEnv 'w (TVar 2) (anTEnv 'e (TVar 3) (anTEnv 'r (TVar 4) (mtTEnv)))))) (TVar 3))
+(reset)
+(test (lookupT-env '(fun (num 2) (num 3)) (anTEnv 'c (TVar 1) (anTEnv '(fun (num 2) (num 3)) (TVar 4) (anTEnv 'f (TVar 7) (mtTEnv))))) (TVar 4))
+(reset)
+
 (printf "\n---------- Test (typeof) ----------\n\n")
 
 (test (typeof (parse 6) (mtTEnv)) (list (TNum)))
@@ -9,7 +20,7 @@
 (test (typeof (parse '{+ {+ {- 6 5} 4} 6})(mtTEnv)) 
     (list (TNum) (Cnst (TNum) (TNum)) (Cnst (TNum) (TNum)) (Cnst (TNum) (TNum)) (Cnst (TNum) (TNum)) (Cnst (TNum) (TNum)) (Cnst (TNum) (TNum))))
 (test (typeof (parse '{+ 10 12}) (mtTEnv)) (list (TNum) (Cnst (TNum) (TNum)) (Cnst (TNum) (TNum))))
-(test (typeof (add (num 10) (num 3)) (mtTEnv)) ( list ( TNum ) ( Cnst ( TNum ) ( TNum )) ( Cnst ( TNum ) ( TNum ))))
+(test (typeof (add (num 10) (num 3)) (mtTEnv)) (list (TNum) (Cnst (TNum) (TNum)) (Cnst (TNum) (TNum))))
 (test (typeof (parse 'x)(anTEnv 'x (TNum) (mtTEnv))) (list (TNum)))
 (reset)
 (test (typeof (parse '{- 10 x}) (anTEnv 'x (TVar 1) (mtTEnv))) (list (TNum) (Cnst (TNum) (TNum)) (Cnst (TVar 1) (TNum))))
@@ -49,6 +60,8 @@
 (test (substitute (TVar 5) (TNum) (list (Cnst (TFun (TVar 1) (TFun (TVar 5) (TVar 3))) (TFun (TVar 1) (TNum))))) 
     (list (Cnst (TFun (TVar 1) (TFun (TNum) (TVar 3))) (TFun (TVar 1) (TNum)))))
 (test (substitute (TVar 1) (TNum) (list (Cnst (TFun (TVar 1) (TVar 1)) (TFun (TNum) (TVar 2))))) (list (Cnst (TFun (TNum) (TNum)) (TFun (TNum) (TVar 2)))))
+(test (substitute (TVar 4) (TVar 1) (list (Cnst (TVar 4) (TVar 2)) (Cnst (TVar 1) (TVar 2)) (Cnst (TVar 4) (TVar 1)) (Cnst (TNum) (TVar 4)))) 
+    (list (Cnst (TVar 1) (TVar 2)) (Cnst (TVar 1) (TVar 2)) (Cnst (TVar 1) (TVar 1)) (Cnst (TNum) (TVar 1))))
 
 (printf "---------- Test (unify) ----------\n\n")
 
@@ -59,11 +72,14 @@
       (list (Cnst (TVar 4) (TVar 3)) (Cnst (TVar 1) (TNum)) (Cnst (TVar 2) (TFun (TNum) (TVar 3)))))
 (test/exn (unify (list (Cnst (TNum) (TNum)) (Cnst (TNum) (TNum)) (Cnst (TVar 1) (TFun (TVar 1) (TFun (TVar 1) (TVar 2)))))) 
       "Exception: Error de Tipo: No se puede unificar [(TVar 1)] con [(TFun (TVar 1) (TFun (TVar 1) (TVar 2)))]")
+(test (unify (list (Cnst (TVar 3) (TNum)) (Cnst (TNum) (TNum)) (Cnst (TFun (TVar 1) (TVar 1)) (TFun (TFun (TVar 3) (TNum)) (TVar 2))) (Cnst (TVar 2) (TFun (TNum) (TVar 4)))))
+    (list (Cnst (TVar 4) (TNum)) (Cnst (TVar 1) (TFun (TNum) (TNum))) (Cnst (TVar 2) (TFun (TNum) (TVar 4))) (Cnst (TVar 3) (TNum))))
 
 (printf "---------- Test (lookup-list) ----------\n\n")
 
 (test (lookup-list '() (TNum)) (TNum))
 (test (lookup-list (list (Cnst (TVar 1) (TNum)) (Cnst (TVar 2) (TNum)) (Cnst (TNum) (TNum))) (TVar 2)) (TNum))
+(test (lookup-list (list (Cnst (TVar 1) (TVar 2)) (Cnst (TVar 1) (TNum))) (TVar 1)) (TVar 2))
 (test (lookup-list (list (Cnst (TVar 1) (TFun (TNum) (TVar 2))) (Cnst (TVar 2) (TNum))) (TVar 1)) (TFun (TNum) (TNum)))
 
 (printf "---------- Test (runType) ----------\n\n")
@@ -87,4 +103,6 @@
 (test/exn (runType '(with (x (+ 10 5)) (fun (y) (+ x (+ y z))))) "Exception: Identificador libre = z")
 (reset)
 (test (runType '((fun (x) (- 100 (+ x 25))) ((fun (t) (+ t t)) ((fun (y) (- (+ 7 5) y)) 2)))) (TNum))
+(reset)
+(test (runType '(fun (x) (if0 x (+ x 1)(- x 1)))) (TFun (TNum) (TNum)))
 (reset)
