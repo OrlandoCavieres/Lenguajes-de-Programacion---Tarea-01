@@ -88,6 +88,7 @@
 (printf "---------- Test (lookup-list) ----------\n\n")
 
 (test (lookup-list '() (TNum)) (TNum))
+(test (lookup-list (list (Cnst (TNum) (TNum)) (TNum)) (TNum)))
 (test (lookup-list (list (Cnst (TVar 1) (TNum)) (Cnst (TVar 2) (TNum)) (Cnst (TNum) (TNum))) (TVar 2)) (TNum))
 (test (lookup-list (list (Cnst (TVar 1) (TVar 2)) (Cnst (TVar 1) (TNum))) (TVar 1)) (TVar 2))
 (test (lookup-list (list (Cnst (TVar 1) (TFun (TNum) (TVar 2))) (Cnst (TVar 2) (TNum))) (TVar 1)) (TFun (TNum) (TNum)))
